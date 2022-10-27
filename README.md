@@ -1,6 +1,8 @@
 # ReqFuse
 
-<img src="assets/logo.png" />
+<object data="assets/logo.png" type="image/jpeg">
+  <img src="assets/fuse.png" alt="ReqFuse fuses" />
+</object>
 
 ReqFuse on Github https://github.com/carsdotcom/req_fuse
 

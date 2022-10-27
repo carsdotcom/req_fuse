@@ -1,0 +1,190 @@
+defmodule FuseReq.Steps.FuseTest do
+  use ExUnit.Case
+
+  import ExUnit.CaptureLog
+
+  alias FuseReq.Steps.FuseTest.TestAdapter
+  alias ReqFuse.Steps.Fuse
+  
+  doctest ReqFuse.Steps.Fuse
+
+  setup context do
+    name = context.test
+
+    on_exit(fn ->
+      :fuse.remove(name)
+    end)
+
+    {:ok, name: name}
+  end
+
+  describe "defaults/0" do
+    test "value" do
+      assert Fuse.defaults == {{:standard, 10, 10_000}, {:reset, 30_000}}
+    end
+  end
+
+  describe "attach/3" do
+    test "key :fuse_name is required" do
+      options = [fuse_opts: {}]
+
+      assert_raise KeyError,
+                   "key :fuse_name not found in: [fuse_opts: {}]",
+        fn ->
+          Req.new()
+          |> Fuse.attach(options)
+        end
+
+    end
+
+    test "configure fuse in the request and response step", %{name: name} do
+      options = [fuse_name: name]
+
+      req =
+        [adapter: &TestAdapter.success/1]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      Req.request!(req)
+
+      assert Enum.member?(Keyword.keys(req.request_steps), :fuse)
+      assert Enum.member?(Keyword.keys(req.response_steps), :fuse)
+
+      request_func = Keyword.get(req.request_steps, :fuse)
+      assert %Req.Request{} = request_func.(req)
+    end
+
+    test "override the melt function", %{name: name} do
+      options = [
+        fuse_name: name,
+        fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}},
+        fuse_melt_func: fn
+          %{status: status} -> status >= 400
+          _ -> false
+        end
+      ]
+
+      req =
+        [adapter: &TestAdapter.not_found/1]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      Req.request!(req)
+      assert :ok = :fuse.ask(name, :sync)
+      Req.request!(req)
+      assert :blown = :fuse.ask(name, :sync)
+    end
+
+    test "setting :keep_original_error raises exception", %{name: name} do
+      options = [
+        fuse_name: name,
+        fuse_keep_original_error: false
+      ]
+
+      assert_raise ArgumentError, "unknown option :fuse_keep_original_error", fn ->
+        Req.new()
+        |> Fuse.attach(options)
+
+      end
+    end
+
+    test "response when fuse is melted a request and response step", %{name: name} do
+      options = [fuse_name: name]
+
+      req =
+        [adapter: &TestAdapter.failed/1, retry: :never]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
+      :fuse.melt(name)
+      :fuse.melt(name)
+
+      _log =
+        capture_log(fn ->
+          {:error, exception} = Req.request(req)
+          assert exception == %RuntimeError{message: "circuit breaker is open"}
+        end)
+    end
+
+    test "eval 5XX response, melt, and trigger blown fuse", %{name: name} do
+      options = [
+        fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}},
+        fuse_name: name
+      ]
+
+      req =
+        [adapter: &TestAdapter.failed/1, retry: :never]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      Req.request!(req)
+
+      assert :ok = :fuse.ask(name, :sync)
+
+      Req.request!(req)
+
+      assert :blown = :fuse.ask(name, :sync)
+    end
+
+    test "logs a warning when the fuse is melted", %{name: name} do
+      options = [fuse_name: name]
+
+      req =
+        [adapter: &TestAdapter.failed/1, retry: :never]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
+      :fuse.melt(name)
+      :fuse.melt(name)
+
+      logs =
+        capture_log([level: :warning], fn ->
+          Req.request(req)
+        end)
+
+      assert logs =~ "[warning] :fuse circuit breaker is open"
+      assert logs =~ "fuse = #{name}"
+    end
+
+    test "swallow log when verbose = false", %{name: name} do
+      options = [fuse_name: name, fuse_verbose: false]
+
+      req =
+        [adapter: &TestAdapter.failed/1, retry: :never]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
+      :fuse.melt(name)
+      :fuse.melt(name)
+
+      logs =
+        capture_log([level: :warning], fn ->
+          Req.request(req)
+        end)
+
+      assert logs == ""
+    end
+  end
+
+  defmodule TestAdapter do
+    @moduledoc "Mock adapter used for testing with `ReqFuse`"
+
+    def success(request) do
+      response = Req.Response.new(status: 200)
+      {request, response}
+    end
+
+    def not_found(request) do
+      response = Req.Response.new(status: 404)
+      {request, response}
+    end
+
+    def failed(request) do
+      response = Req.Response.new(status: 500)
+      {request, response}
+    end
+  end
+end

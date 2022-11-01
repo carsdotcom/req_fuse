@@ -3,7 +3,7 @@ defmodule ReqFuse.MixProject do
 
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
-  @version "0.1.0"
+  @version "0.1.1"
   
   def project do
     [
@@ -15,6 +15,7 @@ defmodule ReqFuse.MixProject do
       deps: deps(),
       docs: docs(),
       description: description(),
+      contributors: contributors(),
       package: package(),
       source_url: @source_url
     ]
@@ -26,9 +27,19 @@ defmodule ReqFuse.MixProject do
     ]
   end
 
+  def contributors() do
+    [
+      {"Christian Koch", "@ckochx"}
+    ]
+  end
+
+
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false, optional: true, app: false},
+      # based on the changelog and commits, anything prior to 2.4.0 is more than 5 years old, and
+      # I suspect, has some differrence in the API. However if there's a use case for earlier fuse
+      # versions, Im' happy to consider a PR.
       {:fuse, ">= 2.4.0"},
       {:req, ">= 0.3.0"}
     ]

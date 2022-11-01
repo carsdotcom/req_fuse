@@ -10,6 +10,9 @@ ReqFuse on Hex https://hex.pm/req_fuse
 
 ReqFuse on HexDocs https://hexdocs.pm/req_fuse
 
+[![CI](https://github.com/carsdotcom/req_fuse/actions/workflows/elixir.yml/badge.svg)](https://github.com/carsdotcom/req_fuse/actions/workflows/elixir.yml)
+
+
 <!-- MDOC -->
 
 [Req](https://github.com/wojtekmach/req) plugin for [`:fuse`](https://github.com/jlouis/fuse)

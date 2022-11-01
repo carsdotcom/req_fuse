@@ -65,7 +65,7 @@ defmodule ReqFuse.MixProject do
       main: "readme",
       extras: [
         "README.md",
-        #"CHANGELOG.md"
+        "CHANGELOG.md"
       ]
     ]
   end

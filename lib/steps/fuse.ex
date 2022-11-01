@@ -49,11 +49,10 @@ defmodule ReqFuse.Steps.Fuse do
   In addition to a `%Req.Response{}` it could receive other error state messages from the underlying
   HTTP adapter libraries. For example:
 
-    - {:error, %Mint.TransportError{reason: :econnrefused}}
-    - {:error, %Mint.TransportError{reason: :timeout}}
-    - {:error, %HTTPoison{}}
-    - some_other_flavor_of_error
-    - etc
+    - `{:error, %Mint.TransportError{reason: :econnrefused}}`
+    - `{:error, %Mint.TransportError{reason: :timeout}}`
+    - `{:error, %HTTPoison{}}`
+    - `some_other_flavor_of_error`
 
   ## Example `melt?/1` function
   ```elixir

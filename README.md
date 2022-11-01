@@ -17,23 +17,23 @@ ReqFuse on HexDocs https://hexdocs.pm/req_fuse
 
 [Req](https://github.com/wojtekmach/req) plugin for [`:fuse`](https://github.com/jlouis/fuse)
 
+ReqFuse provides circuit-breaking functionality for HTTP requests that use the Req library.
 
 ## Usage
 
-After adding the dependency, simply attach the Fuse step to your request.
-Then ensure you are passing in the required and eny optional fuse configurations.
+After adding the dependencies, simply attach the ReqFuse step to your request ensuring
+you are passing in the required and any optional fuse configuration.
 
 ```elixir
 Mix.install([
-  {:req, "~> 0.3.0"},
-  {:req_fuse, "~> 0.1.0"}
+  {:req, "~> 0.3"},
+  {:req_fuse, "~> 0.1"}
 ])
 
-# OR
-
-opts = [fuse_name: My.Example.Fuse]
-req = Req.new(url: "https://httpstat.us/500", retry: :never)
-req = ReqFuse.attach(req, opts)
+req_fuse_opts = [fuse_name: My.Example.Fuse]
+req = [url: "https://httpstat.us/500", retry: :never]
+|> Req.new()
+|> ReqFuse.attach(req_fuse_opts)
 
 # Fire the request enough times to melt the fuse
 Enum.each(0..10, fn _ -> Req.request(req) end)
@@ -43,7 +43,24 @@ Req.request(req)
   => {:error, %RuntimeError{message: "circuit breaker is open"}}
 ```
 
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `req_fuse` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:req_fuse, ">= 0.1.0"}
+  ]
+end
+```
+
 <!-- MDOC -->
+
+## License
+
+  See [LICENSE](https://github.com/carsdotcom/req_fuse/blob/main/LICENSE)
 
 ## Updates
 
@@ -59,20 +76,3 @@ Req.request(req)
   ```
     git tag `grep -e '@version \"\d\.\d\.\d\".*' mix.exs | awk '{gsub(/"/, "", $2); print $2}'`
   ```
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `req_fuse` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:req_fuse, ">= 0.1.0"}
-  ]
-end
-```
-
-## License
-
-  See [LICENSE](https://github.com/carsdotcom/req_fuse/blob/main/LICENSE)
-

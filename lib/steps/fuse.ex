@@ -34,9 +34,40 @@ defmodule ReqFuse.Steps.Fuse do
       See `defaults/0` for more information.
     - `:fuse_verbose` - If false, suppress Log output
 
-  See https://github.com/jlouis/fuse#tutorial for more information, supported strategies, and options
+  See https://github.com/jlouis/fuse#tutorial for more information about the supported fuse
+  strategies and their options.
 
-  ## Example
+  ### Melt function
+
+  By default ReqFuse will send a melt message to your fuse server for any request where the status is over 500.
+
+  There are many other melt options. The melt_function must be a 1-arity function that evaluates the
+  response. Pass the function reference in the `:fuse_melt_func` key as `&Mod.fn/arity` (or MFA notation).
+
+  Any melt function should be widely permissive of what it will evaluate.
+
+  In addition to a `%Req.Response{}` it could receive other error state messages from the underlying
+  HTTP adapter libraries. For example:
+
+    - {:error, %Mint.TransportError{reason: :econnrefused}}
+    - {:error, %Mint.TransportError{reason: :timeout}}
+    - {:error, %HTTPoison{}}
+    - some_other_flavor_of_error
+    - etc
+
+  ## Example `melt?/1` function
+  ```elixir
+    def melt?(%Req.Response{} = response) do
+      cond do
+        response.status in [408, 429] -> true
+        response.status >= 200 and response.status < 300 -> false
+        response.status < 200 -> true
+    end
+    def melt?(%Req.Response{}),  do: false
+    def melt?(error_response), do: true
+  ```
+
+  ## Options Example
   ```elixir
     [
       fuse_melt_func: &__MODULE__.my_melt_function/1,
@@ -48,7 +79,7 @@ defmodule ReqFuse.Steps.Fuse do
   ```
   """
   @spec attach(Req.Request.t(), keyword()) :: Req.Request.t()
-  def attach(%Req.Request{} = request, options \\ []) do
+  def attach(%Req.Request{} = request, options) do
     _ = Keyword.fetch!(options, :fuse_name)
     request
     |> Req.Request.register_options(@fuse_keys)
@@ -58,7 +89,7 @@ defmodule ReqFuse.Steps.Fuse do
   end
 
   @doc """
-  Reasonalble (hopefully) fuse defaults, based on the fuse docs.
+  Reasonalble (hopefully) fuse defaults, based on the fuse docs: `#{inspect(@defaults)}`.
 
   - `fuse type`
     - `first tuple` - Specify the fuse strategy (:standard or :fault_injection),

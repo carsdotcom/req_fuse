@@ -24,7 +24,7 @@ defmodule FuseReq.Steps.FuseTest do
     end
   end
 
-  describe "attach/3" do
+  describe "attach/2" do
     test "key :fuse_name is required" do
       options = [fuse_opts: {}]
 
@@ -59,7 +59,7 @@ defmodule FuseReq.Steps.FuseTest do
         fuse_name: name,
         fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}},
         fuse_melt_func: fn
-          %{status: status} -> status >= 400
+          %{status: status} -> status >= 404
           _ -> false
         end
       ]

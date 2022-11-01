@@ -30,7 +30,7 @@ Mix.install([
 
 opts = [fuse_name: My.Example.Fuse]
 req = Req.new(url: "https://httpstat.us/500", retry: :never)
-req = ReqFuse.Steps.Fuse.attach(req, opts)
+req = ReqFuse.attach(req, opts)
 
 # Fire the request enough times to melt the fuse
 Enum.each(0..10, fn _ -> Req.request(req) end)
@@ -49,7 +49,7 @@ Req.request(req)
   Updating the changelog. (Uses `auto-changelog`)
   https://github.com/cookpete/auto-changelog
 
-  `auto-changelog --breaking-pattern "BREAKING CHANGE"`
+  `auto-changelog --breaking-pattern "BREAKING CHANGE" --template keepachangelog  --commit-limit false --unreleased`
 
 ### Tagging by version in mix.exs
 
@@ -64,7 +64,7 @@ by adding `req_fuse` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:req_fuse, "~> 0.1.0"}
+    {:req_fuse, ">= 0.1.0"}
   ]
 end
 ```

@@ -4,4 +4,8 @@ defmodule ReqFuse do
              |> File.read!()
              |> String.split("<!-- MDOC -->")
              |> Enum.fetch!(1)
+
+  alias ReqFuse.Steps.Fuse
+
+  defdelegate attach(req, opts), to: Fuse
 end

@@ -42,6 +42,20 @@ Req.request(req)
 
 <!-- MDOC -->
 
+## Updates
+
+  See [CHANGELOG.md](https://github.com/carsdotcim/req_fuse/blob/main/CHANGELOG.md)
+
+  Updating the changelog. (Uses `auto-changelog`)
+  https://github.com/cookpete/auto-changelog
+
+  `auto-changelog --breaking-pattern "BREAKING CHANGE"`
+
+### Tagging by version in mix.exs
+
+  ```
+    git tag `grep -e '@version \"\d\.\d\.\d\".*' mix.exs | awk '{gsub(/"/, "", $2); print $2}'`
+  ```
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed

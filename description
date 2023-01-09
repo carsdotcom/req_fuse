@@ -1,1 +1,1 @@
-Unnamed repository; edit this file 'description' to name the repository.
+ReqFuse is a Req (https://github.com/wojtekmach/req) plugin for the fuse (https://github.com/jlouis/fuse) circuit-breaker library.

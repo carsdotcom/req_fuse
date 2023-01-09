@@ -204,6 +204,23 @@ defmodule FuseReq.Steps.FuseTest do
     end
   end
 
+  describe "melt?/1" do
+    test "true for a status >= 500" do
+      assert true == Fuse.melt?(%Req.Response{status: 599})
+    end
+
+    test "true for an exception" do
+      assert true == Fuse.melt?(%{__exception__: true})
+    end
+
+    test "false for anything else" do
+      assert false == Fuse.melt?(%{})
+      assert false == Fuse.melt?(true)
+      assert false == Fuse.melt?(:false)
+      assert false == Fuse.melt?("false")
+    end
+  end
+
   defmodule TestAdapter do
     @moduledoc "Mock adapter used for testing with `ReqFuse`"
 

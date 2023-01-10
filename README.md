@@ -27,7 +27,7 @@ you are passing in the required and any optional fuse configuration.
 ```elixir
 Mix.install([
   {:req, "~> 0.3"},
-  {:req_fuse, "~> 0.1"}
+  {:req_fuse, "~> 0.2"}
 ])
 
 req_fuse_opts = [fuse_name: My.Example.Fuse]
@@ -51,7 +51,7 @@ by adding `req_fuse` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:req_fuse, ">= 0.1.0"}
+    {:req_fuse, ">= 0.2.0"}
   ]
 end
 ```

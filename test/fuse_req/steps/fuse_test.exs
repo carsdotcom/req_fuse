@@ -74,6 +74,56 @@ defmodule FuseReq.Steps.FuseTest do
       assert :blown = :fuse.ask(name, :sync)
     end
 
+    test "500 status retries will trigger melt and blown fuse", %{name: name} do
+      options = [
+        fuse_name: name,
+        fuse_opts: {{:standard, 2, 3000}, {:reset, 1000}}
+      ]
+
+      req =
+        [adapter: &TestAdapter.failed/1, retry: :safe, max_retries: 2, retry_delay: 50]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      _log =
+        capture_log(fn ->
+          Req.request!(req)
+        end)
+
+      assert :blown = :fuse.ask(name, :sync)
+    end
+
+    test "exception retries will trigger melt and blown fuse", %{name: name} do
+      options = [
+        fuse_name: name,
+        fuse_opts: {{:standard, 2, 3000}, {:reset, 1000}}
+      ]
+
+      req =
+        [
+          adapter: &TestAdapter.exception/1,
+          retry: :safe,
+          max_retries: 3,
+          retry_delay: 50,
+          receive_timeout: 0
+        ]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      try do
+        log =
+          capture_log(fn ->
+            Req.request!(req)
+          end)
+
+        assert log =~ "[warning] :fuse circuit breaker is open; fuse = #{name}"
+      rescue
+        e -> e
+      end
+
+      assert :blown = :fuse.ask(name, :sync)
+    end
+
     test "setting :keep_original_error raises exception", %{name: name} do
       options = [
         fuse_name: name,
@@ -216,7 +266,7 @@ defmodule FuseReq.Steps.FuseTest do
     test "false for anything else" do
       assert false == Fuse.melt?(%{})
       assert false == Fuse.melt?(true)
-      assert false == Fuse.melt?(:false)
+      assert false == Fuse.melt?(false)
       assert false == Fuse.melt?("false")
     end
   end
@@ -237,6 +287,10 @@ defmodule FuseReq.Steps.FuseTest do
     def failed(request) do
       response = Req.Response.new(status: 500)
       {request, response}
+    end
+
+    def exception(request) do
+      {request, %RuntimeError{message: "something went wrong"}}
     end
   end
 end

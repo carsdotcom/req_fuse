@@ -5,18 +5,20 @@ defmodule ReqFuse.Steps.Fuse do
 
   require Logger
 
+  alias ReqFuse.Telemetry
+
   @defaults {
     {:standard, 10, 10_000},
     {:reset, 30_000}
   }
 
   @fuse_keys [
-      :fuse_melt_func,
-      :fuse_mode,
-      :fuse_name,
-      :fuse_opts,
-      :fuse_verbose
-    ]
+    :fuse_melt_func,
+    :fuse_mode,
+    :fuse_name,
+    :fuse_opts,
+    :fuse_verbose
+  ]
 
   @doc """
   Attach circuit-breaker :fuse step.
@@ -80,6 +82,7 @@ defmodule ReqFuse.Steps.Fuse do
   @spec attach(Req.Request.t(), keyword()) :: Req.Request.t()
   def attach(%Req.Request{} = request, options) do
     _ = Keyword.fetch!(options, :fuse_name)
+
     request
     |> Req.Request.register_options(@fuse_keys)
     |> Req.Request.merge_options(options)
@@ -118,6 +121,8 @@ defmodule ReqFuse.Steps.Fuse do
         request
 
       :blown ->
+        Telemetry.blown_fuse(name)
+
         if verbose do
           Logger.warning(":fuse circuit breaker is open; fuse = #{name}")
         end

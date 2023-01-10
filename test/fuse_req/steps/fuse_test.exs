@@ -5,7 +5,7 @@ defmodule FuseReq.Steps.FuseTest do
 
   alias FuseReq.Steps.FuseTest.TestAdapter
   alias ReqFuse.Steps.Fuse
-  
+
   doctest ReqFuse.Steps.Fuse
 
   setup context do
@@ -20,7 +20,7 @@ defmodule FuseReq.Steps.FuseTest do
 
   describe "defaults/0" do
     test "value" do
-      assert Fuse.defaults == {{:standard, 10, 10_000}, {:reset, 30_000}}
+      assert Fuse.defaults() == {{:standard, 10, 10_000}, {:reset, 30_000}}
     end
   end
 
@@ -30,11 +30,10 @@ defmodule FuseReq.Steps.FuseTest do
 
       assert_raise KeyError,
                    "key :fuse_name not found in: [fuse_opts: {}]",
-        fn ->
-          Req.new()
-          |> Fuse.attach(options)
-        end
-
+                   fn ->
+                     Req.new()
+                     |> Fuse.attach(options)
+                   end
     end
 
     test "configure fuse in the request and response step", %{name: name} do
@@ -84,7 +83,6 @@ defmodule FuseReq.Steps.FuseTest do
       assert_raise ArgumentError, "unknown option :fuse_keep_original_error", fn ->
         Req.new()
         |> Fuse.attach(options)
-
       end
     end
 
@@ -166,6 +164,43 @@ defmodule FuseReq.Steps.FuseTest do
         end)
 
       assert logs == ""
+    end
+
+    test "emits a Telemetry events when a fuse is blown", %{name: name} do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:req_fuse, :blown]])
+
+      req =
+        [adapter: &TestAdapter.failed/1]
+        |> Req.new()
+        |> Fuse.attach(fuse_name: name)
+
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
+      :fuse.melt(name)
+      :fuse.melt(name)
+
+      capture_log(fn ->
+        Req.request(req)
+      end)
+
+      assert_received {[:req_fuse, :blown], ^ref, _, %{fuse_name: ^name}}
+    end
+
+    test "does not emit a Telemetry events when a fuse closed", %{name: name} do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:req_fuse, :blown]])
+
+      req =
+        [adapter: &TestAdapter.failed/1]
+        |> Req.new()
+        |> Fuse.attach(fuse_name: name)
+
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
+      :fuse.melt(name)
+
+      capture_log(fn ->
+        Req.request(req)
+      end)
+
+      refute_received {[:req_fuse, :blown], ^ref, _, %{fuse_name: ^name}}
     end
   end
 

@@ -4,7 +4,7 @@ defmodule ReqFuse.MixProject do
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
   @version "0.1.2"
-  
+
   def project do
     [
       app: :req_fuse,
@@ -33,7 +33,6 @@ defmodule ReqFuse.MixProject do
     ]
   end
 
-
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false, optional: true, app: false},
@@ -41,22 +40,23 @@ defmodule ReqFuse.MixProject do
       # I suspect, has some differrence in the API. However if there's a use case for earlier fuse
       # versions, I'm happy to consider a PR.
       {:fuse, ">= 2.4.0"},
-      {:req, ">= 0.3.0"}
+      {:req, ">= 0.3.0"},
+      {:telemetry, ">= 1.2.0"}
     ]
   end
 
   defp description do
-     # "ReqFuse is a Req plugin for the fuse circuit-breaker library."
-     File.read!("./description")
-   end
+    # "ReqFuse is a Req plugin for the fuse circuit-breaker library."
+    File.read!("./description")
+  end
 
-   defp package() do
-     [
-       description: description(),
-       licenses: ["CC-BY-NC-ND-4.0"],
-       links: %{"GitHub" => @source_url}
-     ]
-   end
+  defp package() do
+    [
+      description: description(),
+      licenses: ["CC-BY-NC-ND-4.0"],
+      links: %{"GitHub" => @source_url}
+    ]
+  end
 
   defp docs do
     [

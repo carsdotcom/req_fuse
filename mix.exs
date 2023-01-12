@@ -3,7 +3,7 @@ defmodule ReqFuse.MixProject do
 
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
-  @version "0.2.0"
+  @version "0.2.1"
 
   def project do
     [
@@ -41,7 +41,7 @@ defmodule ReqFuse.MixProject do
       # versions, I'm happy to consider a PR.
       {:fuse, ">= 2.4.0"},
       {:req, ">= 0.3.0"},
-      {:telemetry, ">= 1.2.0"}
+      {:telemetry, "~> 1.0 or ~> 0.4"}
     ]
   end
 

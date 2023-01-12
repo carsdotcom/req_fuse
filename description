@@ -1,1 +1,3 @@
-ReqFuse is a Req (https://github.com/wojtekmach/req) plugin for the fuse (https://github.com/jlouis/fuse) circuit-breaker library.
+[`Req`](https://github.com/wojtekmach/req) plugin for [`:fuse`](https://github.com/jlouis/fuse)
+
+ReqFuse provides circuit-breaking functionality for HTTP requests that use the Req library.

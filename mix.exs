@@ -3,7 +3,7 @@ defmodule ReqFuse.MixProject do
 
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
-  @version "0.1.2"
+  @version "0.2.0"
 
   def project do
     [
@@ -46,7 +46,6 @@ defmodule ReqFuse.MixProject do
   end
 
   defp description do
-    # "ReqFuse is a Req plugin for the fuse circuit-breaker library."
     File.read!("./description")
   end
 

@@ -88,6 +88,7 @@ defmodule ReqFuse.Steps.Fuse do
     |> Req.Request.merge_options(options)
     |> Req.Request.prepend_request_steps(fuse: &check_fuse_state/1)
     |> Req.Request.prepend_response_steps(fuse: &melt_fuse/1)
+    |> Req.Request.prepend_error_steps(fuse: &melt_fuse/1)
   end
 
   @doc """
@@ -151,5 +152,6 @@ defmodule ReqFuse.Steps.Fuse do
   """
   @spec melt?(term()) :: boolean()
   def melt?(%Req.Response{} = response) when response.status >= 500, do: true
+  def melt?(%{__exception__: true}), do: true
   def melt?(_), do: false
 end

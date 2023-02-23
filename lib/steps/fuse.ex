@@ -21,17 +21,17 @@ defmodule ReqFuse.Steps.Fuse do
   ]
 
   @doc """
-  Attach circuit-breaker :fuse step.
+  Attach the circuit-breaker :fuse step and configure the supported options.
 
   ## Fuse Options
 
-    - `:fuse_melt_func` - function to determine if response should melt the fuse
-      defaults to `melt?/1`
+    - `:fuse_melt_func` - A 1-arity function to determine if response should melt the fuse
+      defaults to `__MODULE__.melt?/1`
     - `:fuse_mode` - how to query the fuse, which has two values:
       - `:sync` - queries are serialized through the `:fuse_server` process (the default)
       - `:async_dirty` - queries check the fuse state directly, but may not account for recent melts or resets
     - `:fuse_name` - **REQUIRED** the name of the fuse to install
-    - `:fuse_opts` The fuse options (see fuse docs for reference) (order matters)
+    - `:fuse_opts` The fuse _strategy_ options (see [fuse docs](https://hexdocs.pm/fuse/fuse.html#types) for reference) (order matters)
       defaults to `#{inspect(@defaults)}`.
       See `defaults/0` for more information.
     - `:fuse_verbose` - If false, suppress Log output
@@ -71,7 +71,7 @@ defmodule ReqFuse.Steps.Fuse do
   ## Options Example
   ```elixir
     [
-      fuse_melt_func: &__MODULE__.my_melt_function/1,
+      fuse_melt_func: &My.Fuse.CustoMod.my_melt_function/1,
       fuse_mode: :sync,
       fuse_name: My.Fuse.Name,
       fuse_opts: {{:standard, 1, 1000}, {:reset, 300}},

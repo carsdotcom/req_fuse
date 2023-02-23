@@ -26,7 +26,7 @@ defmodule ReqFuse.Steps.Fuse do
   ## Fuse Options
 
     - `:fuse_melt_func` - A 1-arity function to determine if response should melt the fuse
-      defaults to `__MODULE__.melt?/1`
+      defaults to `ReqFuse.Steps.Fuse.melt?/1`
     - `:fuse_mode` - how to query the fuse, which has two values:
       - `:sync` - queries are serialized through the `:fuse_server` process (the default)
       - `:async_dirty` - queries check the fuse state directly, but may not account for recent melts or resets
@@ -92,7 +92,7 @@ defmodule ReqFuse.Steps.Fuse do
   end
 
   @doc """
-  Reasonalble (hopefully) fuse defaults, based on the fuse docs: `#{inspect(@defaults)}`.
+  (Hopefully) reasonable fuse defaults, based on the fuse docs: `#{inspect(@defaults)}`.
 
   - `fuse type`
     - `first tuple` - Specify the fuse strategy (:standard or :fault_injection),

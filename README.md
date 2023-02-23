@@ -85,7 +85,7 @@ See also the additional discussion on options in `ReqFuse.Steps.Fuse`
 
 ## Updates
 
-  See [CHANGELOG.md](https://github.com/carsdotcim/req_fuse/blob/main/CHANGELOG.md)
+  See [CHANGELOG.md](https://github.com/carsdotcom/req_fuse/blob/main/CHANGELOG.md)
 
   Updating the changelog. (Uses `auto-changelog`)
   https://github.com/cookpete/auto-changelog

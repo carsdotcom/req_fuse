@@ -17,7 +17,7 @@ ReqFuse on HexDocs https://hexdocs.pm/req_fuse
 
 [Req](https://github.com/wojtekmach/req) plugin for [`:fuse`](https://github.com/jlouis/fuse)
 
-ReqFuse provides circuit-breaking functionality for HTTP requests that use the Req library.
+ReqFuse provides circuit-breaker (or load-shedding) functionality for HTTP requests that use the Req library.
 
 ## Usage
 
@@ -57,6 +57,27 @@ end
 ```
 
 <!-- MDOC -->
+
+## Twiddling the Knobs
+
+  Attach the circuit-breaker :fuse step and configure the available options
+
+### Fuse Options
+
+  - `:fuse_melt_func` - A 1-arity function to determine if response should melt the fuse
+    defaults to `ReqFuse.Steps.Fuse.melt?/1`
+  - `:fuse_mode` - how to query the fuse, which has two values:
+    - `:sync` - queries are serialized through the `:fuse_server` process (the default)
+    - `:async_dirty` - queries check the fuse state directly, but may not account for recent melts or resets
+  - `:fuse_name` - **REQUIRED** the name of the fuse to install
+  - `:fuse_opts` The fuse _strategy_ options (see [fuse docs](https://hexdocs.pm/fuse/fuse.html#types) for reference) (order matters)
+    See `ReqFuse.Steps.Fuse.defaults/0` for more information.
+  - `:fuse_verbose` - If false, suppress Log output
+
+See https://github.com/jlouis/fuse#tutorial for more information about the supported fuse
+strategies and their options.
+
+See also the additional discussion on options in `ReqFuse.Steps.Fuse`
 
 ## License
 

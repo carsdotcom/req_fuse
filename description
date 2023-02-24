@@ -1,3 +1,4 @@
-[`Req`](https://github.com/wojtekmach/req) plugin for [`:fuse`](https://github.com/jlouis/fuse)
+ReqFuse provides circuit-breaking functionality, using fuse, for HTTP requests that use Req.
+Req: https://github.com/wojtekmach/req
+Fuse: ttps://github.com/jlouis/fuse
 
-ReqFuse provides circuit-breaking functionality for HTTP requests that use the Req library.

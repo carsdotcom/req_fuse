@@ -6,7 +6,7 @@
 
 ReqFuse on Github https://github.com/carsdotcom/req_fuse
 
-ReqFuse on Hex https://hex.pm/req_fuse
+ReqFuse on Hex https://hex.pm/packages/req_fuse
 
 ReqFuse on HexDocs https://hexdocs.pm/req_fuse
 

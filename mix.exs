@@ -3,7 +3,7 @@ defmodule ReqFuse.MixProject do
 
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
-  @version "0.2.1"
+  @version "0.2.2"
 
   def project do
     [
@@ -46,7 +46,11 @@ defmodule ReqFuse.MixProject do
   end
 
   defp description do
-    File.read!("./description")
+    """
+    ReqFuse provides circuit-breaking functionality, using fuse, for HTTP requests that use Req.
+    Req: https://github.com/wojtekmach/req
+    Fuse: ttps://github.com/jlouis/fuse
+    """
   end
 
   defp package() do

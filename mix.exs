@@ -3,7 +3,7 @@ defmodule ReqFuse.MixProject do
 
   @name "ReqFuse"
   @source_url "https://github.com/carsdotcom/req_fuse"
-  @version "0.2.2"
+  @version "0.2.3"
 
   def project do
     [

@@ -53,6 +53,23 @@ defmodule FuseReq.Steps.FuseTest do
       assert %Req.Request{} = request_func.(req)
     end
 
+    test "ignore non-fuse keys", %{name: name} do
+      options = [
+        fuse_name: name,
+        fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}},
+        ignored_key: :ignored_value
+      ]
+
+      req =
+        [adapter: &TestAdapter.not_found/1]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      assert Map.has_key?(req.options, :fuse_name)
+      assert Map.has_key?(req.options, :fuse_opts)
+      refute Map.has_key?(req.options, :ignored_key)
+    end
+
     test "override the melt function", %{name: name} do
       options = [
         fuse_name: name,
@@ -124,16 +141,14 @@ defmodule FuseReq.Steps.FuseTest do
       assert :blown = :fuse.ask(name, :sync)
     end
 
-    test "setting :keep_original_error raises exception", %{name: name} do
+    test "setting :keep_original_error key gets dropped", %{name: name} do
       options = [
         fuse_name: name,
         fuse_keep_original_error: false
       ]
 
-      assert_raise ArgumentError, "unknown option :fuse_keep_original_error", fn ->
-        Req.new()
-        |> Fuse.attach(options)
-      end
+      req = Fuse.attach(Req.new(), options)
+      refute Map.has_key?(req.options, :fuse_keep_original_error)
     end
 
     test "response when fuse is melted a request and response step", %{name: name} do

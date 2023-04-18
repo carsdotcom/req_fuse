@@ -82,10 +82,11 @@ defmodule ReqFuse.Steps.Fuse do
   @spec attach(Req.Request.t(), keyword()) :: Req.Request.t()
   def attach(%Req.Request{} = request, options) do
     _ = Keyword.fetch!(options, :fuse_name)
+    fuse_options = Keyword.take(options, @fuse_keys)
 
     request
     |> Req.Request.register_options(@fuse_keys)
-    |> Req.Request.merge_options(options)
+    |> Req.update(fuse_options)
     |> Req.Request.prepend_request_steps(fuse: &check_fuse_state/1)
     |> Req.Request.prepend_response_steps(fuse: &melt_fuse/1)
     |> Req.Request.prepend_error_steps(fuse: &melt_fuse/1)

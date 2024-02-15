@@ -98,7 +98,7 @@ defmodule FuseReq.Steps.FuseTest do
       ]
 
       req =
-        [adapter: &TestAdapter.failed/1, retry: :safe, max_retries: 2, retry_delay: 50]
+        [adapter: &TestAdapter.failed/1, retry: :safe_transient, max_retries: 2, retry_delay: 50]
         |> Req.new()
         |> Fuse.attach(options)
 
@@ -110,19 +110,58 @@ defmodule FuseReq.Steps.FuseTest do
       assert :blown = :fuse.ask(name, :sync)
     end
 
-    test "exception retries will trigger melt and blown fuse", %{name: name} do
+    test "exceptions without a :reason will not retry, but fuse will still blow", %{name: name} do
       options = [
         fuse_name: name,
-        fuse_opts: {{:standard, 2, 3000}, {:reset, 1000}}
+        fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}}
       ]
+
+      # If all the requests are exceptions, the fuse will never get installed.
+      # install it 'manually'
+      :fuse.install(name, {{:standard, 1, 3000}, {:reset, 1000}})
 
       req =
         [
           adapter: &TestAdapter.exception/1,
-          retry: :safe,
-          max_retries: 3,
-          retry_delay: 50,
-          receive_timeout: 0
+          max_retries: 1
+        ]
+        |> Req.new()
+        |> Fuse.attach(options)
+
+      try do
+        Req.request!(req)
+      rescue
+        e -> e
+      end
+
+      try do
+        log =
+          capture_log(fn ->
+            Req.request!(req)
+          end)
+
+        assert log =~ "[warning] :fuse circuit breaker is open; fuse = #{name}"
+      rescue
+        e -> e
+      end
+
+      assert :blown = :fuse.ask(name, :sync)
+    end
+
+    test "exceptions with a :reason will retry and will trigger melt and blown fuse", %{
+      name: name
+    } do
+      options = [
+        fuse_name: name,
+        fuse_opts: {{:standard, 1, 3000}, {:reset, 1000}}
+      ]
+
+      req =
+        [
+          adapter: &TestAdapter.closed/1,
+          retry: :safe_transient,
+          max_retries: 1,
+          retry_delay: 50
         ]
         |> Req.new()
         |> Fuse.attach(options)
@@ -155,7 +194,7 @@ defmodule FuseReq.Steps.FuseTest do
       options = [fuse_name: name]
 
       req =
-        [adapter: &TestAdapter.failed/1, retry: :never]
+        [adapter: &TestAdapter.failed/1, retry: false]
         |> Req.new()
         |> Fuse.attach(options)
 
@@ -177,7 +216,7 @@ defmodule FuseReq.Steps.FuseTest do
       ]
 
       req =
-        [adapter: &TestAdapter.failed/1, retry: :never]
+        [adapter: &TestAdapter.failed/1, retry: false]
         |> Req.new()
         |> Fuse.attach(options)
 
@@ -194,7 +233,7 @@ defmodule FuseReq.Steps.FuseTest do
       options = [fuse_name: name]
 
       req =
-        [adapter: &TestAdapter.failed/1, retry: :never]
+        [adapter: &TestAdapter.failed/1, retry: false]
         |> Req.new()
         |> Fuse.attach(options)
 
@@ -215,7 +254,7 @@ defmodule FuseReq.Steps.FuseTest do
       options = [fuse_name: name, fuse_verbose: false]
 
       req =
-        [adapter: &TestAdapter.failed/1, retry: :never]
+        [adapter: &TestAdapter.failed/1, retry: false]
         |> Req.new()
         |> Fuse.attach(options)
 
@@ -254,7 +293,7 @@ defmodule FuseReq.Steps.FuseTest do
       ref = :telemetry_test.attach_event_handlers(self(), [[:req_fuse, :blown]])
 
       req =
-        [adapter: &TestAdapter.failed/1]
+        [adapter: &TestAdapter.failed/1, retry_delay: 100]
         |> Req.new()
         |> Fuse.attach(fuse_name: name)
 
@@ -306,6 +345,10 @@ defmodule FuseReq.Steps.FuseTest do
 
     def exception(request) do
       {request, %RuntimeError{message: "something went wrong"}}
+    end
+
+    def closed(request) do
+      {request, %Mint.TransportError{reason: :closed}}
     end
   end
 end

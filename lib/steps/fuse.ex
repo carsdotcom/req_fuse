@@ -23,6 +23,8 @@ defmodule ReqFuse.Steps.Fuse do
   @doc """
   Attach the circuit-breaker :fuse step and configure the supported options.
 
+  Only fuse-options are attached here; other options are dropped.
+
   ## Fuse Options
 
     - `:fuse_melt_func` - A 1-arity function to determine if response should melt the fuse

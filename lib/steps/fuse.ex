@@ -88,7 +88,7 @@ defmodule ReqFuse.Steps.Fuse do
 
     request
     |> Req.Request.register_options(@fuse_keys)
-    |> Req.update(fuse_options)
+    |> Req.merge(fuse_options)
     |> Req.Request.prepend_request_steps(fuse: &check_fuse_state/1)
     |> Req.Request.prepend_response_steps(fuse: &melt_fuse/1)
     |> Req.Request.prepend_error_steps(fuse: &melt_fuse/1)

@@ -40,7 +40,7 @@ defmodule ReqFuse.MixProject do
       # I suspect, has some differrence in the API. However if there's a use case for earlier fuse
       # versions, I'm happy to consider a PR.
       {:fuse, ">= 2.4.0"},
-      {:req, ">= 0.3.0"},
+      {:req, ">= 0.4.14"},
       {:telemetry, "~> 1.0 or ~> 0.4"}
     ]
   end

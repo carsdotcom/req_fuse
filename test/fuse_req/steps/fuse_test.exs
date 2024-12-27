@@ -159,7 +159,7 @@ defmodule FuseReq.Steps.FuseTest do
       req =
         [
           adapter: &TestAdapter.closed/1,
-          # retry: :safe_transient,
+          retry: :safe_transient,
           max_retries: 1,
           retry_delay: 50
         ]

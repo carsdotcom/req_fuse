@@ -131,7 +131,7 @@ defmodule ReqFuse.Steps.Fuse do
           Logger.warning(":fuse circuit breaker is open; fuse = #{name}")
         end
 
-        {Req.Request.halt(request), RuntimeError.exception("circuit breaker is open")}
+        Req.Request.halt(request, RuntimeError.exception("circuit breaker is open"))
 
       {:error, :not_found} ->
         _ = :fuse.install(name, opts)

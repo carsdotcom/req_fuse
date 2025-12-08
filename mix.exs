@@ -49,7 +49,7 @@ defmodule ReqFuse.MixProject do
     """
     ReqFuse provides circuit-breaking functionality, using fuse, for HTTP requests that use Req.
     Req: https://github.com/wojtekmach/req
-    Fuse: ttps://github.com/jlouis/fuse
+    Fuse: https://github.com/jlouis/fuse
     """
   end
 

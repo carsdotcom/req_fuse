@@ -1,8 +1,6 @@
 # ReqFuse
 
-<object data="assets/logo.png" type="image/jpeg">
-  <img src="assets/fuse.png" alt="ReqFuse fuses" />
-</object>
+<img src="assets/fuse.png" alt="ReqFuse fuses" />
 
 ReqFuse on Github https://github.com/carsdotcom/req_fuse
 
@@ -27,7 +25,7 @@ you are passing in the required and any optional fuse configuration.
 ```elixir
 Mix.install([
   {:req, "~> 0.3"},
-  {:req_fuse, "~> 0.2"}
+  {:req_fuse, "~> 0.3"}
 ])
 
 req_fuse_opts = [fuse_name: My.Example.Fuse]
@@ -51,7 +49,7 @@ by adding `req_fuse` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:req_fuse, ">= 0.2.0"}
+    {:req_fuse, ">= 0.3.0"}
   ]
 end
 ```
@@ -78,6 +76,31 @@ See https://github.com/jlouis/fuse#tutorial for more information about the suppo
 strategies and their options.
 
 See also the additional discussion on options in `ReqFuse.Steps.Fuse`
+
+## Telemetry
+
+ReqFuse emits telemetry events for observability:
+
+### Events
+
+* `[:req_fuse, :blown]` - Emitted when a request is blocked because the fuse is blown (circuit breaker is open).
+
+#### Metadata
+
+* `:fuse_name` - The name of the fuse that is blown.
+
+### Example Handler
+
+```elixir
+:telemetry.attach(
+  "req-fuse-handler",
+  [:req_fuse, :blown],
+  fn _event, _measurements, metadata, _config ->
+    Logger.warning("Circuit breaker open for #{inspect(metadata.fuse_name)}")
+  end,
+  nil
+)
+```
 
 ## License
 

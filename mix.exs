@@ -37,7 +37,7 @@ defmodule ReqFuse.MixProject do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false, optional: true, app: false},
       # based on the changelog and commits, anything prior to 2.4.0 is more than 5 years old, and
-      # I suspect, has some differrence in the API. However if there's a use case for earlier fuse
+      # I suspect, has some difference in the API. However if there's a use case for earlier fuse
       # versions, I'm happy to consider a PR.
       {:fuse, ">= 2.4.0"},
       {:req, ">= 0.4.14"},
